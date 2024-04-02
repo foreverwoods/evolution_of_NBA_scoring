@@ -1,6 +1,6 @@
 ## Overview
 
-Breaking down how scoring has changed in the National Basketball Association (NBA) throughout the past 34 years and it may entail for the future.
+Breaking down how scoring has changed in the National Basketball Association (NBA) throughout the past 24 years (since 2000) and what it may entail for the future.
 
 ## File Structure
 
