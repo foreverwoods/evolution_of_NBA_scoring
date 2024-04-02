@@ -2,6 +2,8 @@
 
 Breaking down how scoring has changed in the National Basketball Association (NBA) throughout the past 24 years (since 2000) and what it may entail for the future.
 
+**Overarching Question: ** What drove the rise in scoring in the NBA since the 2000s, and what will scoring look like in the future?
+
 ## File Structure
 
 The repo is structured as:
