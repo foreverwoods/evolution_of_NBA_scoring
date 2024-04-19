@@ -16,8 +16,8 @@ nba_team_data <- read_csv("./data/raw_data/raw_data.csv")
 ## CLEAN DATA
 cleaned_data <- nba_team_data |>
   drop_na() |>
-  filter(substr(Season, 1, 4) >= 2000) |>
-  select(`Season`, `FG`, `FGA`, `3P`, `3PA`, `FT`, `FTA`, `ORB`, `DRB`, `TRB`, `AST`, `STL`, `BLK`, `TOV`, `PF`, `PTS`, `FG%`, `3P%`, `FT%`, `Pace`, `FT/FGA`, `ORtg`)
+  filter(substr(Season, 1, 4) >= 2000) |>   ## substr because we need to strip first 4 vals in Season format ####-##
+  select(`Season`, `FGA`, `3PA`, `FTA`, `ORB`, `DRB`, `AST`, `STL`, `BLK`, `TOV`, `PF`, `PTS`, `FG%`, `3P%`, `FT%`, `Pace`)
 
 
 
