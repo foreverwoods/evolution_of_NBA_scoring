@@ -8,6 +8,7 @@
 
 #### Workspace setup ####
 library(tidyverse)
+library(arrow)
 
 #### Clean data ####
 nba_team_data <- read_csv("./data/raw_data/raw_data.csv")
@@ -20,4 +21,5 @@ cleaned_data <- nba_team_data |>
 
 
 #### Save data ####
-write_csv(cleaned_data, "./data/analysis_data/analysis_data.csv")
+write_parquet(cleaned_data, "./data/analysis_data/analysis_data.parquet")
+
