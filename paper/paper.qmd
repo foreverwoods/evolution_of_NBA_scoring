@@ -49,6 +49,7 @@ as well as:
 library(tidyverse)
 library(knitr)
 library(arrow)
+library(modelsummary)
 
 ## Load Data
 nba_data <- read_parquet("../data/analysis_data/analysis_data.parquet")
@@ -128,6 +129,18 @@ Defensive Analytics:
 
 ## Justification
 
+The reason why these variables were chosen is because they are the basic and fundamental aspects of basketball. These represent both offense and defense in an understandable manner, as opposed to advanced analytics, such as: Offensive Rating which calculates how many points a team can score within 100 possessions. This is a metric that, while valuable on its own, loses its value in the context of trying to calculate the average points per game since it is utilized in said formula.
+
+`Season` and `PTS` are necessary since we would like to see the change in points scored as the years go by. The figure, @fig-nbaseasonscoring showcases the increase in scoring over the years. In this figure, you are able to see specific seasons where NBA scoring took a significant leap as opposed to previous years, i.e. 2018-19.
+
+`FGA`, `FG%`, `3PA`, `3P%`, 'FTA`, `FT%`, are the variables that track every possible way to score a point. While three point shooting is still considered a 'field-goal' it is essential that we highlight it since it is a main contributing factor to the increase in scoring. Taking a look at the two figures in @fig-threesduo, @fig-threesduo-1 clearly shows how the increase in three pointers attempted correlates to the increase in points per game, regardless of the year it took place. @fig-threesduo-2 shows how the three point shooting percentages relatively stayed the same (accounting for slight disparities from time to time), and that it is the volume of threes taken that made a difference.
+
+`AST` is another offensive stat that has shown a correlation to points per game. Taking a look at @fig-astsvspts, you can see how the an increase in assists per game, correlates to an increase in points per game. This can possibly signify a change in offensive system, where teams are passing the ball more often as opposed to isolation play in order to generate better, higher-percentage, shot attempts.
+
+`TOV`, `ORB`, `Pace`, are the last offensive statistics. They are possibly outliers in comparison to the other, more direct statistics, but they do show significant changes over the years. In the later years between 2000-2024, it is clear that both turnovers per game and offensive rebounds per game lessened, while the pace of the game increased.
+
+`DRB`, `STL`, `BLK`, `PF`, are the main defensive statistics that have direct impact on offensive output. By securing a defensive rebound, steal, or block, the defending team can shut down the offensive team's possession and prevent them from scoring. PF, or personal fouls, impact the offense in various ways as it generally dictates how aggressive a team is playing defense. This can be seen in @fig-foulsvspts, where it shows the less fouls commited, generally outputs to an increase in points per game.
+
 ```{r}
 #| echo: false
 #| message: false
@@ -193,36 +206,272 @@ ggplot(nba_data, aes(x = `PF`, y = `PTS`)) +
 
 ```
 
+\newpage
 
-# Model
+# Models
 
-## Model set-up
+The production of the generalized linear model was created with the **rstanarm** [@citeRstanarm] package. This is then followed up using **modelsummary** [@citeModelsummary]
+There are a total of four models created that aim to predict the average points per game. We hope to highlight the most important factors that contribute to scoring points in the NBA. These models are:
+
+1. Three Point Scoring and Efficiency
+2. All Forms of Scoring and Their Respective Efficiencies
+3. Offensive Intangibles
+4. Defensive Importance in Scoring
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| include: false
+# Load in models
+scoring_model <-
+  readRDS(file = "../models/scoring_model.rds")
+
+intangibles_model <-
+  readRDS(file = "../models/intangibles_model.rds")
+
+threes_model <-
+  readRDS(file = "../models/threes_model.rds")
+
+defense_model <-
+  readRDS(file = "../models/defense_model.rds")
+
+```
+
+## Three Point Scoring and Efficiency
+
+### Model set-up
+
+The model we are interested in is:
+
+$$
+\begin{aligned} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 +\beta_1\mbox{3PA}_i +\beta_2\mbox{3P-percentage}_i \\
+\beta_{0} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{1} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{2} &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1) \\
+\end{aligned}
+$$
+
+
+where $y_i$ is average points per game in an NBA season, $\text{3PA}_i$ is the three pointers attempted per game and $\text{3P-percentage}_i$ is the average three point percentage.
+
+@tbl-modelsummaryThrees shows a model summary for this model, this will be discussed further in the [results](#results) section.
 
 ### Model justification
 
+This first model is exclusive to three point shooting. This is what many people believe to be the sole factor in the increase in NBA scoring. There has been instances in the NBA where teams have elected to shoot only high percentage shots, which are three pointers and layups, eliminating the mid range almost entirely. This was seen in the 2017-2018 NBA season with the Houston Rockets, where they took the top seed in the Western Conference while leading the league with 41.5 threes a game @cite2018Rockets. If you compare that to the league average stats in that season, this would be an increase of 12.5 three pointers a game. As such, it would be a wise decision to solely dedicate a model to these statistics.
+
+
+## All Forms of Scoring and Their Respective Efficiencies
+
+### Model set-up
+
+The model we are interested in is:
+
+$$
+\begin{aligned} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 +\beta_1\mbox{3PA}_i +\beta_2\mbox{3P-percentage}_i +\beta_3\mbox{FGA}_i +\beta_4\mbox{FG-percentage}_i +\beta_5\mbox{FTA}_i +\beta_6\mbox{FT-percentage}_i \\
+\beta_{0} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{1} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{2} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{3} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{4} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{5} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{6} &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1) \\
+\end{aligned}
+$$
+
+
+where $y_i$ is average points per game in an NBA season, $\text{3PA}_i$ is the three pointers attempted per game, $\text{3P-percentage}_i$ is the average three point percentage, $\text{FGA}_i$ is the field goals attempted per game, $\text{FG-percentage}_i$ is the average field goal percentage, $\text{FTA}_i$ is the free throws attempted per game, $\text{FT-percentage}_i$ is the average free throw percentage.
+
+@tbl-modelsummaryScoring shows a model summary for this model, this will be discussed further in the [results](#results) section.
+
+
+### Model justification
+
+This second model is all forms of scoring. While an increase in scoring is generally attributed to better shooting, having a model to resemble that can allow you to check it and compare with defensive metrics whether the change was affected more by offense or defense. This includes the attempts for each scoring shot as well as the efficiencies over the years.
+
+
+## Offensive Intangibles
+
+### Model set-up
+
+The model we are interested in is:
+`ORB` + `AST` + `Pace` + `TOV`,
+$$
+\begin{aligned} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 +\beta_1\mbox{ORB}_i +\beta_2\mbox{AST}_i +\beta_3\mbox{Pace}_i +\beta_4\mbox{TOV}_i \\
+\beta_{0} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{1} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{2} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{3} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{4} &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1) \\
+\end{aligned}
+$$
+
+
+where $y_i$ is average points per game in an NBA season, $\text{ORB}_i$ is the average number of offensive rebounds per game, $\text{AST}_i$ is the average assists per game, $\text{Pace}_i$ is the average number of possessions per game, $\text{TOV}_i$ is the average number of turnovers per game.
+
+@tbl-modelsummaryIntangibles shows a model summary for this model, this will be discussed further in the [results](#results) section.
+
+### Model justification
+
+This third model is exclusive to offensive intangibles that are not directly scoring, but can lead to a potential score. This could be from increased playmaking leading to better percentage shots (less contest from defenders), turning the ball over less, crashing the boards for offensive rebounds more, or just playing in a faster pace.
+
+
+
+## Defensive Importance in Scoring
+
+### Model set-up
+
+The model we are interested in is:
+
+$$
+\begin{aligned} 
+y_i|\mu_i, \sigma &\sim \mbox{Normal}(\mu_i, \sigma) \\
+\mu_i &= \beta_0 +\beta_1\mbox{STL}_i +\beta_2\mbox{BLK}_i +\beta_3\mbox{PF}_i +\beta_4\mbox{DRB}_i \\
+\beta_{0} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{1} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{2} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{3} &\sim \mbox{Normal}(0, 2.5) \\
+\beta_{4} &\sim \mbox{Normal}(0, 2.5) \\
+\sigma &\sim \mbox{Exponential}(1) \\
+\end{aligned}
+$$
+
+
+where $y_i$ is average points per game in an NBA season, $\text{STL}_i$ is the average number of steals per game, $\text{BLK}_i$ is the average number of blocks per game, $\text{PF}_i$ is the average number of fouls per game, $\text{DRB}_i$ is the average number of defensive rebounds per game.
+
+@tbl-modelsummaryDefense shows a model summary for this model, this will be discussed further in the [results](#results) section.
+
+
+### Model justification
+
+This last model is exclusive to defensive attributes. This can help us see what defensive factors are most significant in the change in NBA scoring. Steals and Blocks could possibly lead to more fast-break opportunities where teams run down the floor, generally leading to a score on the other end because the other team is not set to play defense as they were not expecting their possession to be stolen or blocked. Personal fouls could also lead to more free throw opportunities for teams, and defensive rebounds ensure that your team gets the possession and the chance to score.
+
+\newpage
+
 # Results
+
+## Threes Model
+The intercept (23.391) is the average points scored when you zero out the other factors.
+3PA: 0.798 is the increase in average points associated with each additional 3-point attempt.
+3P%: 170.222 is The increase in average points associated with a 1 percentage point increase in 3-point shooting percentage. Since the percentage points are set up to not add up to 100 percent, divide 170.222 by 100 to show what a 1% increase in shooting percentage would increase in points, which is 1.70 points per game.
+
+\newpage
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| label: tbl-modelsummaryThrees
+#| tbl-cap: "Three Point Scoring and Efficiency"
+
+modelsummary(
+  list(
+    "Avg Points Per Game" = threes_model
+  ),
+  statistic = "mad"
+  )
+
+```
+
+\newpage
+
+## Scoring Model
+
+The intercept (-110.27) can be disregarded as we have removed all forms of scoring, as such it is in the negatives.
+3PA: 0.340 is the increase in average points associated with each additional 3-point attempt.
+3P%: 18.512 is The increase in average points associated with a 1 percentage point increase in 3-point shooting percentage. Since the percentage points are set up to not add up to 100 percent, divide 18.512 by 100 to show what a 1% increase in shooting percentage would increase in points, which is ~0.19 points per game.
+FGA: 0.93 is the increase in average points associated with each additional field goal attempt.
+FG%: 1.67 increase in average points with each 1% increase in field goal percentage.
+FTA: 0.755 is the increase in average points associated with each additional free throw attempt.
+FT%: 0.3455 increase in average points with each 1% increase in free throw percentage.
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| label: tbl-modelsummaryScoring
+#| tbl-cap: "All Forms of Scoring and Their Respective Efficiencies"
+
+modelsummary(
+  list(
+    "Avg Points Per Game" = scoring_model
+  ),
+  statistic = "mad"
+  )
+
+```
+\newpage
+## Intangibles Model
+The intercept (37.794) is the average points scored when you zero out the other factors.
+ORB: -1.201 is the decrease in average points associated with each additional offensive rebound. This makes sense because an offensive rebound will only come with missed shots, but is not something that should be considered a negative aspect to offense.
+AST: 1.386 is the increase in average points associated with each additional assist.
+Pace: 0.881 is the increase in average points associated with each additional team possession.
+TOV: -2.558 is the decrease in average points associated with each additional turnover. This makes sense because it means that your team would miss out on the entire possession meaning you score no points as well as it took time out of the clock which gives you less possessions overall to play the game.
+
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| label: tbl-modelsummaryIntangibles
+#| tbl-cap: "Offensive Intangibles"
+
+modelsummary(
+  list(
+    "Avg Points Per Game" = intangibles_model
+  ),
+  statistic = "mad"
+  )
+
+```
+
+\newpage 
+## Defense Model
+The intercept (99.952) is the average points scored when you zero out the other factors. This is approximately how many points are scored on average from offense alone.
+STL: -12.497 is the decrease in average points associated with each additional steal. This is quite a shocker since a steal should technically trigger a fast-break opportunity, allowing a team to score. But, you do have to consider one thing, which is that the other team will lose an opportunity from your team stealing the ball. This will affect the overall scoring averages for the league.
+BLK: 3.372 is the increase in average points associated with each additional block This is also a shocker because a steal was a significant decrease, but blocks are not. One explanation can be that blocks need to be recovered and thus do not always translate to a fast-break opportunity like steals.
+PF: -0.912 is the decrease in average points associated with each additional foul. This makes sense because it can cause teams to lose possession, reliable offensive players fouling out may also translate to less scoring as well.
+DRB: 3.321 is the increase in average points associated with each additional defensive rebound. 
+\newpage
+
+```{r}
+#| message: false
+#| warning: false
+#| echo: false
+#| label: tbl-modelsummaryDefense
+#| tbl-cap: "Defensive Importance in Scoring"
+
+modelsummary(
+  list(
+    "Avg Points Per Game" = defense_model
+  ),
+  statistic = "mad"
+  )
+
+```
+
+
 
 # Discussion
 
 ## First discussion point {#sec-first-point}
 
-## Second discussion point
+## Second discussion point {#sec-sec-point}
 
-## Third discussion point
+## Third discussion point {#sec-third-point}
 
 ## Weaknesses and next steps
 
-\newpage
 
-\appendix
-
-# Appendix {.unnumbered}
-
-# Additional data details
-
-# Model details {#sec-model-details}
-
-## Diagnostics
 
 \newpage
 
