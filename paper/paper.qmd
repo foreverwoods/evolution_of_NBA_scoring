@@ -1,6 +1,6 @@
 ---
-title: "The Evolution of NBA Scoring"
-subtitle: "A Breakdown on How Modern Basketball Produces Historic Numbers"
+title: "The Evolution of Points Scored in the NBA"
+subtitle: "A Breakdown on How NBA Offense has Changed since 2000"
 author: 
   - Janssen Myer Rambaud
 thanks: "Code and data are available at: https://github.com/foreverwoods/evolution_of_NBA_scoring."
@@ -15,21 +15,17 @@ bibliography: references.bib
 
 # Introduction
 
-The evolution of basketball throughout its tenure has brought about various discussions between the older generation of fans and the newer generation. A main topic of debate is in regards to the scoring of the game. Throughout this paper, we will be looking into the statistical data from the 2000-2001 NBA season up to the current 2023-2024 season. By analyzing the data and considering the changes, we aim to deduce the significant factors that have impacted scoring in the NBA.
+The evolution of scoring in basketball throughout its tenure has brought about various discussions between the older generation of fans and the newer generation. A main topic of debate is in regards to the scoring of the game. Throughout this paper, we will be looking into the statistical data from the 2000-2001 NBA season up to the current 2023-2024 season. By analyzing the data and considering the changes, we aim to deduce the significant factors that have impacted scoring in the NBA. There are also other factors that may not be as obvious in the statistics, such as the change in pace of the game, how defenses have changed, and how the playstyles have evolved. This shows that what most would have as the 'conclusive main argument' for the 'rise of NBA scoring' in three-point shooting, may not be as significant on its own as it was originally perceived. There are many more factors that come into play that may co-align with the rise of three-point shooting, but have not been properly considered. All of these understandings are vital in predicting the possible future of NBA scoring. Suppose an NBA team replaced every single NBA shot with a three-point shot, since it is worth more points, then the entire game plan would change. Opposing teams would not consider that team a threat when they are closer to the basket, so they could overload the three point line and work to lower their opponents' three-point shooting percentage beyond the league average. This hypothetical scenario could end up with that three-point shooting team scoring significantly less than the average NBA team. 'Live by the three, die by the tree', as they would call it.
 
-There are also other factors that may not be as obvious in the statistics, such as the change in pace of the game, how defenses have changed, and how the players have evolved. This shows that what most would have as the 'conclusive main argument' for the 'rise of NBA scoring' in three-point shooting, may not be as significant on its own as it was originally perceived.
+The estimand is what were investigating as we look for the main factors, both offensive and defensive that contribute to the rise in NBA points scored.
 
-There are many more factors that come into play that may co-align with the rise of three-point shooting, but have not been properly considered. All of these understandings are vital in predicting the possible future of NBA scoring. Suppose an NBA team replaced every single NBA shot with a three-point shot, since it is worth more points, then the entire game plan would change. Opposing teams would not consider that team a threat when they are closer to the basket, so they could overload the three point line and work to lower their opponents' three-point shooting percentage beyond the league average. This hypothetical scenario could end up with that three-point shooting team scoring significantly less than the average NBA team. 'Live by the three, die by the tree', as they would call it. The estimand is that the rise in NBA scoring is not solely due to the rise in three-point shooting, but rather a combined effort of various factors played on both ends of the court, offense and defense.
-
-These are all factors that we will be looking into throughout this paper. This paper aims to make use of @citeR to provide an analysis of the main factors that have contributed to the rise in scoring in the NBA and how it may affect the future of the sport, from statistics, to the player archetypes sought after, to whether or not the current NBA records will be broken. After introducing the chosen statistical data ranging from individual teams and players, to cumulative, league-wide stats, we will incorporate this data into a model to predict whether or not scoring will continue to rise, or if it has reached its peak. \## Basketball Context
-
-To give a brief context into the sport, in basketball, scoring points is done by shooting the ball through a hoop that is 10 feet off the ground. You can score two points by shooting the ball from within a marked line, called the three-point line, and three points by shooting the ball from beyond that line. The game is played in four 12 minute quarters and the team with the most points at the end of the game wins.
+These are all factors that we will be looking into throughout this paper. This paper aims to make use of @citeR to provide an analysis of the main factors that have contributed to the rise in scoring in the NBA and how it may affect the future of the sport, from statistics, to the player archetypes sought after, to whether or not the current NBA records will be broken. After introducing the chosen statistical data ranging from individual teams and players, to cumulative, league-wide stats, we will incorporate this data into a model to predict whether or not scoring will continue to rise, or if it has reached its peak.
 
 # Data {#sec-data}
 
 The information used in the development of this paper is from basketball-reference, which is a reputable database that tracks NBA statistics as far as the first ever game in 1946 [@citeBBallRef]. It is endorsed by professional sports writers and major sports media outlets, like ESPN, which proves its reliability for the analysis in this paper. With the now completed 2023-2024 NBA season, the paper aims to analyze the increase in the 'average points per game\` for each NBA season from 2000 to 2024 to find trends that affected the league as a whole as opposed to a subset of outlier teams.
 
-The data was cleaned using **arrow** [@citeArrow], then parsed, analyzed, and visualized using **R** [@citeR] utilizing the package **tidyverse** [@citeTidyverse], which made use of the following packages:
+The data was cleaned using **arrow** [@citeArrow], then parsed, analyzed, and visualized using **R** [@citeR] utilizing the packages **tidyverse** [@citeTidyverse], which made use of the following packages:
 
 -   **ggplot2** [@citeGGPlot]
 
@@ -39,9 +35,54 @@ The data was cleaned using **arrow** [@citeArrow], then parsed, analyzed, and vi
 
 -   **tibble** [@citeTibble]
 
+as well as:
+
+- **knitr** [@citeKnitr] for table visualization.
+
+```{r}
+#| echo: false
+#| include: false
+#| message: false
+#| warning: false
+
+## Load workspace
+library(tidyverse)
+library(knitr)
+library(arrow)
+
+## Load Data
+nba_data <- read_parquet("../data/analysis_data/analysis_data.parquet")
+
+```
+
+## Basketball Context
+
+To give a brief context into the sport, in basketball, scoring points is done by shooting the ball through a hoop that is 10 feet off the ground. You can score two points by shooting the ball from within a marked line, called the three-point line, and three points by shooting the ball from beyond that line. The game is played in four 12 minute quarters and the team with the most points at the end of the game wins.
+
+For a statistical breakdown on the significance of NBA offense and defense, in the 2000-2001 season, the average points per game by an NBA team was 94.8. In the current 2023-2024 season, the average points per game by an NBA team is 114.4, with approximately 90% of the games played (82 games per team) in the season. This is an increase of 19.6 points per game, which is overall a \~20.7% increase in scoring.
+
+The biggest telltale sign of this increase, and the main topic of concern in the rise of three-point shooting. In the 2000-2001 season, the average three-point attempts per game by an NBA team was 13.7, with an average of 4.8 made to give a 35.4% shooting percentage. In the current 2023-2024 season, the average three-point attempts per game by an NBA team is 35.1 with an average of 12.8 made to give a 36.6% shooting percentage.
+
+So in this time period, the average three-point attempts per game nearly tripled while also increasing the shooting percentage by 1.2%. While this information is very helpful in discovering the underlying causes of the rise in NBA scoring, there were also some consequences to this change. Like how the number of fouls has decreased from 22.3 to 18.9 which affects the number of free throws decreasing from 24.9 to 21.9 taken a game.
+
 ## Variables
 
-The basketball analytics used for this paper's analysis specifically look at the average team's stats across an entire NBA season. These statistics are official NBA data provided by the NBA's official statistics tracking partner, Sportradar. Thus, this data is legitimate and unbiased as a viewer from home can track each statistics live and achieve the exact same stat sheet as basketball-reference. I have divided the analytics between offensive-based stats and defensive-based stats due to the impact defense has in stopping an offensive team from scoring.
+The basketball analytics used for this paper's analysis specifically look at the average team's stats across an entire NBA season. These statistics are official NBA data provided by the NBA's official statistics tracking partner, Sportradar. Thus, this data is legitimate and unbiased as a viewer from home can track each statistics live and achieve the exact same stat sheet as basketball-reference. I have divided the analytics between offensive-based stats and defensive-based stats due to the impact defense has in stopping an offensive team from scoring, which can be seen on @tbl-nbaseasonhistory.
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: tbl-nbaseasonhistory
+#| tbl-cap: "NBA Average Team Statistics For Each Season"
+
+nba_data |>
+  head() |>
+  kable(
+    col.names = c("NBA Season", "FGA", "3PA", "FTA", "ORB", "DRB", "AST", "STL", "BLK", "TOV", "PF", "PTS", "FG%", "3P%", "FT%", "Pace")
+  )
+
+```
 
 These analytics include:
 
@@ -85,13 +126,73 @@ Defensive Analytics:
     -   The average number of fouls (player deflects makes illegal contact with a player on the opposing team) per game by a team during a given NBA season.
         -   If the offensive player is fouled during a field goal attempt and make the shot, then the field goal is counted and they are awarded 1 free throw. If they miss the shot, then they are given a proportional amount of free throws as their attempt (2 for a field goal within the arc and 3 for three-point attempts).
 
-## Statistical Context - Impact of Offense and Defense
+## Justification
 
-In the 2000-2001 season, the average points per game by an NBA team was 94.8. In the current 2023-2024 season, the average points per game by an NBA team is 114.4, with approximately 90% of the games played (82 games per team) in the season. This is an increase of 19.6 points per game, which is overall a \~20.7% increase in scoring.
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-nbaseasonscoring
+#| fig-cap: "NBA Average Points per Game For Each Season"
 
-The biggest telltale sign of this increase, and the main topic of concern in the rise of three-point shooting. In the 2000-2001 season, the average three-point attempts per game by an NBA team was 13.7, with an average of 4.8 made to give a 35.4% shooting percentage. In the current 2023-2024 season, the average three-point attempts per game by an NBA team is 35.1 with an average of 12.8 made to give a 36.6% shooting percentage.
+ggplot(nba_data, aes(x = Season, y = PTS)) +
+  geom_bar(stat = "identity") +
+  labs(x = "NBA Season", y = "Points Per Game") +
+  coord_cartesian(ylim = c(90, 115)) + 
+  theme_minimal() + 
+  theme(legend.position = "bottom", axis.text.x=element_text(angle=60, hjust=1))
+```
 
-So in this time period, the average three-point attempts per game nearly tripled while also increasing the shooting percentage by 1.2%. While this information is very helpful in discovering the underlying causes of the rise in NBA scoring, there were also some consequences to this change. Like how the number of fouls has decreased from 22.3 to 18.9 which affects the number of free throws decreasing from 24.9 to 21.9 taken a game.
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-threesduo
+#| fig-cap: "Impact of Three Point Shooting in the NBA"
+#| fig-subcap: ["Threes Attempted vs Points", "Three Point Percentage Through the NBA Season"]
+#| layout-ncol: 2
+
+ggplot(nba_data, aes(x = `3PA`, y = PTS)) +
+  geom_point(color = "green") +
+  labs(x = "Three Pointers Attempted per Game", y = "Points Per Game") +
+  theme_minimal()
+
+ggplot(nba_data, aes(x = `Season`, y = `3P%`)) +
+  geom_bar(stat = "identity") +
+  labs(x = "NBA Season", y = "Three Point Percentage") +
+  coord_cartesian(ylim = c(0.345, 0.37)) + 
+  theme_minimal() + 
+  theme(legend.position = "bottom", axis.text.x=element_text(angle=60, hjust=1))
+
+
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-astsvspts
+#| fig-cap: "NBA Assists vs. Points"
+ggplot(nba_data, aes(x = `AST`, y = `PTS`)) +
+  geom_point(color = "blue") +
+  labs(x = "Assists per Game", y = "Points Per Game") +
+  theme_minimal()
+```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+#| label: fig-foulsvspts
+#| fig-cap: "NBA Fouls vs. Points"
+
+ggplot(nba_data, aes(x = `PF`, y = `PTS`)) +
+  geom_point(color = "red") +
+  labs(x = "Fouls per Game", y = "Points Per Game") +
+  theme_minimal()
+
+```
+
 
 # Model
 
