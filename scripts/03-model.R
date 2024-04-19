@@ -12,7 +12,7 @@ library(tidyverse)
 library(rstanarm)
 
 #### Read data ####
-analysis_data <- read_csv("data/analysis_data/analysis_data.csv")
+analysis_data <- read_parquet("./data/analysis_data/analysis_data.parquet")
 
 ### Model data ####
 
